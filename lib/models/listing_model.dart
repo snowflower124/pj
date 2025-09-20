@@ -1,7 +1,7 @@
 class HousingListing {
   final String id;
   final String housingType;
-  final String transactionType; // 👈 이 줄을 추가하세요.
+  final String transactionType;
   final String location;
   final int deposit;
   final int rent;
@@ -12,7 +12,7 @@ class HousingListing {
   HousingListing({
     required this.id,
     required this.housingType,
-    required this.transactionType, // 👈 생성자에도 추가
+    required this.transactionType,
     required this.location,
     required this.deposit,
     required this.rent,
@@ -26,7 +26,7 @@ class HousingListing {
     return HousingListing(
       id: json['id'] ?? '',
       housingType: json['housingType'] ?? '정보 없음',
-      transactionType: json['transactionType'] ?? '정보 없음', // 👈 JSON 파싱 로직 추가
+      transactionType: json['transactionType'] ?? '정보 없음',
       location: json['location'] ?? '정보 없음',
       deposit: json['deposit'] ?? 0,
       rent: json['rent'] ?? 0,
