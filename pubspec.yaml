@@ -41,6 +41,8 @@ dependencies:
   image_picker: ^1.0.7
   http: ^1.2.1
   kakao_map_plugin: ^0.3.7
+  file_picker: ^8.0.5
+
 
 
 dev_dependencies:
