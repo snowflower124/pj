@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // 날짜 포맷팅을 위해 intl 패키지 추가
 
 // 앱의 시작점
 void main() {
   runApp(const ZariApp());
 }
 
-// 앱의 루트 위젯 - '자리(ZARI)' 앱
+// 앱의 루트 위젯
 class ZariApp extends StatelessWidget {
   const ZariApp({super.key});
 
@@ -14,28 +15,19 @@ class ZariApp extends StatelessWidget {
     return MaterialApp(
       title: '자리 (ZARI)',
       debugShowCheckedModeBanner: false,
-      // 앱의 전반적인 테마 설정
       theme: ThemeData(
-        primarySwatch: Colors.deepPurple, // 앱의 기본 색상 견본
-        scaffoldBackgroundColor: const Color(0xFFF2F2F7), // iCloud 스타일의 배경색
-        fontFamily: 'Pretendard', // (선택) Pretendard와 같은 깔끔한 한글 폰트 추천
+        primarySwatch: Colors.deepPurple,
+        scaffoldBackgroundColor: const Color(0xFFF2F2F7),
+        fontFamily: 'Pretendard',
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFFF2F2F7), // 배경과 동일한 AppBar 색상
-          foregroundColor: Colors.black, // AppBar 텍스트 및 아이콘 색상
-          elevation: 0, // 그림자 제거로 플랫한 디자인
+          backgroundColor: Color(0xFFF2F2F7),
+          foregroundColor: Colors.black,
+          elevation: 0,
           titleTextStyle: TextStyle(
             color: Colors.black,
             fontSize: 22,
             fontWeight: FontWeight.bold,
           ),
-        ),
-        // 카드 테마 설정
-        cardTheme: CardThemeData( // CardThemeData로 타입 수정
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
         ),
       ),
       home: const MainScreen(),
@@ -43,7 +35,7 @@ class ZariApp extends StatelessWidget {
   }
 }
 
-// 하단 탭 네비게이션을 관리하는 메인 스크린
+// --- 메인 스크린 및 내비게이션 ---
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -54,12 +46,12 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  // 하단 탭에 연결될 페이지들
   static const List<Widget> _widgetOptions = <Widget>[
-    HomePage(), // 홈 (핵심 기능 대시보드)
-    Center(child: Text('계약 안심 동행 페이지')),
-    Center(child: Text('유용한 정보 페이지')),
-    Center(child: Text('마이페이지')),
+    ListingsPage(),
+    ContractPage(),
+    CompassAiPage(),
+    InfoPage(),
+    MyPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -74,206 +66,291 @@ class _MainScreenState extends State<MainScreen> {
       body: _widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_filled),
-            label: '홈',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shield_outlined),
-            label: '계약',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.lightbulb_outline),
-            label: '정보',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: '마이페이지',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.location_on_outlined), label: '매물'),
+          BottomNavigationBarItem(icon: Icon(Icons.shield_outlined), label: '계약'),
+          BottomNavigationBarItem(icon: Icon(Icons.compass_calibration_rounded), label: '나침반'),
+          BottomNavigationBarItem(icon: Icon(Icons.lightbulb_outline), label: '정보'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: '마이페이지'),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.deepPurple, // 선택된 아이템 색상
-        unselectedItemColor: Colors.grey, // 선택되지 않은 아이템 색상
+        selectedItemColor: Colors.deepPurple,
+        unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed, // 탭 고정
-        showUnselectedLabels: true, // 선택되지 않은 라벨도 표시
+        type: BottomNavigationBarType.fixed,
+        showUnselectedLabels: true,
       ),
     );
   }
 }
 
-// '자리(ZARI)'의 핵심 기능이 반영된 홈 페이지
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+// --- 1. 매물 탭 페이지 (오류 수정) ---
+class ListingsPage extends StatelessWidget {
+  const ListingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Column 대신 ListView를 사용하여 작은 화면에서의 오버플로우 오류 방지
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('자리 (ZARI)'),
-      ),
+      appBar: AppBar(centerTitle: false, title: const Text('내 주변 매물')),
       body: ListView(
         children: [
-          const SizedBox(height: 10),
-          _buildHeaderCard(),
-          const SizedBox(height: 20),
-
-          // --- 2.1. 나침반 AI 섹션 ---
-          _buildSectionHeader("나침반 AI: 내 상황 진단하기"),
-          _buildFeatureCard(
-            children: [
-              _buildListTile(
-                icon: Icons.compass_calibration_rounded,
-                color: Colors.purple,
-                title: 'AI 주거 상황 진단',
-                subtitle: '내 소득과 조건에 맞는 자리 찾기',
-                onTap: () {},
-              ),
-              _buildListTile(
-                icon: Icons.real_estate_agent_rounded,
-                color: Colors.blue,
-                title: '최적 주거 형태/지역 추천',
-                subtitle: '쉐어하우스, LH, 역세권 다세대주택 등',
-                onTap: () {},
-              ),
-              _buildListTile(
-                icon: Icons.savings_rounded,
-                color: Colors.green,
-                title: '맞춤형 금융 상품 매칭',
-                subtitle: '버팀목 전세자금대출 등 정부 지원 연결',
-                onTap: () {},
-              ),
-            ],
+          const DDayCard(),
+          // 지도 영역의 높이를 고정하여 ListView 내에서 크기를 가질 수 있도록 함
+          Container(
+            height: MediaQuery.of(context).size.height * 0.5, // 화면 높이의 50%를 차지
+            margin: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Stack(
+              children: [
+                const Center(
+                  child: Text("지도 영역", style: TextStyle(color: Colors.grey, fontSize: 20)),
+                ),
+                _buildListingPin(top: 50, left: 60),
+                _buildListingPin(top: 120, left: 200),
+                _buildListingPin(bottom: 80, right: 80),
+              ],
+            ),
           ),
-
-          // --- 2.2. 계약 안심 동행 섹션 ---
-          _buildSectionHeader("계약 안심 동행: 안전한 계약"),
-          _buildFeatureCard(
-            children: [
-              _buildListTile(
-                icon: Icons.checklist_rtl_rounded,
-                color: Colors.orange,
-                title: '단계별 계약 체크리스트',
-                subtitle: '집 알아보기부터 이사까지 전 과정 가이드',
-                onTap: () {},
-              ),
-              _buildListTile(
-                icon: Icons.document_scanner_rounded,
-                color: Colors.red,
-                title: 'AI 계약서 분석',
-                subtitle: '독소 조항, 위험 특약 자동 스캔 및 경고',
-                onTap: () {},
-              ),
-              _buildListTile(
-                icon: Icons.camera_alt_rounded,
-                color: Colors.teal,
-                title: '증거 보관함',
-                subtitle: '하자 발생 대비 집 내부 사진/상태 기록',
-                onTap: () {},
-              ),
-            ],
-          ),
-
-          // --- 정보 탐색 섹션 ---
-          _buildSectionHeader("유용한 정보: 기회 잡기"),
-          _buildFeatureCard(
-            children: [
-              _buildListTile(
-                icon: Icons.notifications_active_rounded,
-                color: Colors.indigo,
-                title: '맞춤형 주거 공고 알림',
-                subtitle: 'LH/SH 청년 주택, 행복주택 등',
-                onTap: () {},
-              ),
-              _buildListTile(
-                icon: Icons.school_rounded,
-                color: Colors.brown,
-                title: '틈새 장학금 정보',
-                subtitle: '민간 재단, 기업, 동문회 장학금',
-                onTap: () {},
-              ),
-              _buildListTile(
-                icon: Icons.wallet_giftcard_rounded,
-                color: Colors.pink,
-                title: '생활비 절약 꿀팁',
-                subtitle: '알뜰교통카드, 청년 전용 금융 상품 등',
-                onTap: () {},
-              ),
-            ],
-          ),
-          const SizedBox(height: 40),
         ],
       ),
     );
   }
 
-  // 상단 헤더 카드 위젯
-  Widget _buildHeaderCard() {
+  Widget _buildListingPin({double? top, double? bottom, double? left, double? right}) {
+    return Positioned(
+      top: top, bottom: bottom, left: left, right: right,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+            color: Colors.deepPurple,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))]
+        ),
+        child: const Text("500/55", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      ),
+    );
+  }
+}
+
+// --- D-Day 계산 및 표시 위젯 (오류 수정) ---
+class DDayCard extends StatefulWidget {
+  const DDayCard({super.key});
+
+  @override
+  State<DDayCard> createState() => _DDayCardState();
+}
+
+class _DDayCardState extends State<DDayCard> {
+  DateTime? _startDate;
+  DateTime? _endDate;
+
+  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2010),
+      lastDate: DateTime(2040),
+    );
+    if (picked != null) {
+      setState(() {
+        if (isStartDate) {
+          _startDate = picked;
+        } else {
+          _endDate = picked;
+        }
+      });
+    }
+  }
+
+  // 계산 로직을 별도의 함수로 분리하여 가독성 및 안정성 향상
+  Map<String, dynamic> _calculateProgress() {
+    if (_startDate == null || _endDate == null) {
+      return {"percentage": 0.0, "text": "0.0%"};
+    }
+
+    // 종료일이 시작일보다 이전인 경우 예외 처리
+    if (_endDate!.isBefore(_startDate!)) {
+      return {"percentage": 100.0, "text": "날짜 오류"};
+    }
+
+    final totalDuration = _endDate!.difference(_startDate!).inDays;
+    if (totalDuration <= 0) {
+      // 계약 기간이 하루인 경우
+      return {"percentage": 100.0, "text": "100.0%"};
+    }
+
+    final today = DateTime.now();
+    final passedDuration = today.difference(_startDate!).inDays;
+
+    if (passedDuration < 0) return {"percentage": 0.0, "text": "0.0%"};
+    if (passedDuration >= totalDuration) return {"percentage": 100.0, "text": "100.0%"};
+
+    final percentage = (passedDuration / totalDuration) * 100;
+    return {"percentage": percentage, "text": "${percentage.toStringAsFixed(1)}%"};
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final progress = _calculateProgress();
+    final double percentageValue = progress["percentage"];
+    final String percentageText = progress["text"];
+
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0),
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              "'투명인간'이 된 청년들을 위한\n첫 자립의 동반자, 자리",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildDateSelector("계약 시작일", _startDate, () => _selectDate(context, true)),
+                const Text("~", style: TextStyle(fontSize: 16)),
+                _buildDateSelector("계약 종료일", _endDate, () => _selectDate(context, false)),
+              ],
             ),
-            SizedBox(height: 8),
-            Text(
-              "흩어져 있는 정보를 모아\n안전하고 합리적인 '나의 자리'를 찾아보세요.",
-              style: TextStyle(fontSize: 14, color: Colors.grey),
-            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Text("D-Day", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: LinearProgressIndicator(
+                      value: percentageValue / 100,
+                      minHeight: 12,
+                      backgroundColor: Colors.grey[300],
+                      valueColor: const AlwaysStoppedAnimation<Color>(Colors.deepPurple),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(percentageText, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              ],
+            )
           ],
         ),
       ),
     );
   }
 
-  // 기능 목록을 담는 카드 위젯
-  Widget _buildFeatureCard({required List<Widget> children}) {
-    return Card(
-      child: Column(children: children),
-    );
-  }
-
-  // 섹션 제목 위젯
-  Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 24.0, right: 16.0, bottom: 8.0, top: 16.0),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  // 카드 내부에 들어갈 리스트 타일 위젯 (부제목 추가)
-  Widget _buildListTile({
-    required IconData icon,
-    required Color color,
-    required String title,
-    String? subtitle, // 부제목 추가
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      leading: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Icon(icon, color: Colors.white, size: 24),
-      ),
-      title: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-      subtitle: subtitle != null ? Text(subtitle, style: const TextStyle(fontSize: 13)) : null,
-      trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+  Widget _buildDateSelector(String label, DateTime? date, VoidCallback onTap) {
+    return GestureDetector(
       onTap: onTap,
+      child: Column(
+        children: [
+          Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+          const SizedBox(height: 4),
+          Text(
+            date != null ? DateFormat('yyyy.MM.dd').format(date) : "날짜 선택",
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
     );
   }
+}
+
+// --- 2. 계약 탭 페이지 ---
+class ContractPage extends StatelessWidget {
+  const ContractPage({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(centerTitle: false, title: const Text('계약 안심 동행')),
+      body: ListView(
+        padding: const EdgeInsets.only(top: 20.0),
+        children: [_buildFeatureCard(children: [
+          _buildListTile(icon: Icons.checklist_rtl_rounded, color: Colors.orange, title: '단계별 계약 체크리스트', onTap: () {}),
+          _buildListTile(icon: Icons.document_scanner_rounded, color: Colors.red, title: 'AI 계약서 분석', onTap: () {}),
+          _buildListTile(icon: Icons.camera_alt_rounded, color: Colors.teal, title: '증거 보관함', onTap: () {}),
+        ])],
+      ),
+    );
+  }
+}
+
+// --- 3. 나침반 AI 탭 페이지 ---
+class CompassAiPage extends StatelessWidget {
+  const CompassAiPage({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(centerTitle: false, title: const Text('나침반 AI')),
+      body: ListView(
+        padding: const EdgeInsets.only(top: 20.0),
+        children: [_buildFeatureCard(children: [
+          _buildListTile(icon: Icons.compass_calibration_rounded, color: Colors.purple, title: 'AI 주거 상황 진단', onTap: () {}),
+          _buildListTile(icon: Icons.real_estate_agent_rounded, color: Colors.blue, title: '최적 주거 형태/지역 추천', onTap: () {}),
+          _buildListTile(icon: Icons.savings_rounded, color: Colors.green, title: '맞춤형 금융 상품 매칭', onTap: () {}),
+        ])],
+      ),
+    );
+  }
+}
+
+// --- 4. 정보 탭 페이지 ---
+class InfoPage extends StatelessWidget {
+  const InfoPage({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(centerTitle: false, title: const Text('유용한 정보')),
+      body: ListView(
+        padding: const EdgeInsets.only(top: 20.0),
+        children: [_buildFeatureCard(children: [
+          _buildListTile(icon: Icons.notifications_active_rounded, color: Colors.indigo, title: '맞춤형 주거 공고 알림', onTap: () {}),
+          _buildListTile(icon: Icons.school_rounded, color: Colors.brown, title: '틈새 장학금 정보', onTap: () {}),
+          _buildListTile(icon: Icons.wallet_giftcard_rounded, color: Colors.pink, title: '생활비 절약 꿀팁', onTap: () {}),
+        ])],
+      ),
+    );
+  }
+}
+
+// --- 5. 마이페이지 ---
+class MyPage extends StatelessWidget {
+  const MyPage({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(centerTitle: false, title: const Text('마이페이지')),
+      body: const Center(child: Text('마이페이지입니다.')),
+    );
+  }
+}
+
+// --- 공용 위젯 ---
+Widget _buildFeatureCard({required List<Widget> children}) {
+  final List<Widget> itemsWithDividers = [];
+  for (int i = 0; i < children.length; i++) {
+    itemsWithDividers.add(children[i]);
+    if (i < children.length - 1) {
+      itemsWithDividers.add(const Divider(height: 1, thickness: 0.5, indent: 56, color: Color(0xFFE0E0E0)));
+    }
+  }
+  return Card(
+    margin: const EdgeInsets.symmetric(horizontal: 16),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+    child: Column(children: itemsWithDividers),
+  );
+}
+
+Widget _buildListTile({required IconData icon, required Color color, required String title, required VoidCallback onTap}) {
+  return ListTile(
+    leading: Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(8)),
+      child: Icon(icon, color: Colors.white, size: 20),
+    ),
+    title: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal)),
+    trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+    onTap: onTap,
+  );
 }
