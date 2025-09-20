@@ -1,16 +1,9 @@
-# zari
-
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+JSON "Key":"Value" 
+incomeQuintile : Number (Integer)	소득 분위 (1~10)
+currentIncome : Number (Integer)	현재 월 소득 (단위: 만원)
+familyMembers : Number (Integer)	가족 인원 수
+childrenCount : Number (Integer)	자녀 수
+isMarried : Boolean	기혼 여부 (true 또는 false)
+age : Number (Integer)	현재 나이
+availableBudget : Number (Integer)	사용 가능한 예산 (단위: 만원)
+location : String	학교/직장 위치 (문자열)
