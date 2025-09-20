@@ -10,7 +10,7 @@
 
         <meta-data
             android:name="com.kakao.vectormap.APP_KEY"
-            android:value="2a70fcb16cc44e404ca4a948af381b92"/>
+            android:value="7bf7dd53cc28377f53ed2dfcaba5f089"/>
 
         <activity
             android:name=".MainActivity"
