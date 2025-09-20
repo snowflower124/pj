@@ -281,9 +281,9 @@ class MyPage extends StatelessWidget {
             children: const [
               CircleAvatar(radius: 40, backgroundColor: Colors.deepPurple, child: Icon(Icons.person, size: 50, color: Colors.white)),
               SizedBox(height: 12),
-              Text("한덕윤님", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              Text("User_Nickname", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               SizedBox(height: 4),
-              Text("hdyoon@email.com", style: TextStyle(fontSize: 14, color: Colors.grey)),
+              Text("User@email.com", style: TextStyle(fontSize: 14, color: Colors.grey)),
             ],
           ),
           const SizedBox(height: 30),
