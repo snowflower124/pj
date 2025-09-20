@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:kakao_map_plugin/kakao_map_plugin.dart';
 import 'package:zari/data/mock_listings.dart';
 import 'package:zari/screens/filter_screen.dart';
-import 'package:zari/models/listing_model.dart';
 
 class ListingsPage extends StatefulWidget {
   const ListingsPage({super.key});

@@ -15,7 +15,11 @@ class _DDayCardState extends State<DDayCard> {
     final DateTime? picked = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(2010), lastDate: DateTime(2040));
     if (picked != null) {
       setState(() {
-        if (isStartDate) _startDate = picked; else _endDate = picked;
+        if (isStartDate) {
+          _startDate = picked;
+        } else {
+          _endDate = picked;
+        }
       });
     }
   }
@@ -25,7 +29,7 @@ class _DDayCardState extends State<DDayCard> {
     if (_startDate == null || _endDate == null || _endDate!.isBefore(_startDate!)) return result;
     final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     final remainingDays = _endDate!.difference(today).inDays;
-    result["dDayText"] = remainingDays >= 0 ? "D-${remainingDays}" : "D+${remainingDays.abs()}";
+    result["dDayText"] = remainingDays >= 0 ? "D-$remainingDays" : "D+${remainingDays.abs()}";
     final totalDuration = _endDate!.difference(_startDate!).inDays;
     if (totalDuration > 0) {
       final passedDuration = today.difference(_startDate!).inDays;

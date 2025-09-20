@@ -27,8 +27,8 @@ class HousingListing {
       deposit: json['deposit'] ?? 0,
       rent: json['rent'] ?? 0,
       description: json['description'] ?? '설명 없음',
-      lat: json['lat'] ?? 37.5665,
-      lng: json['lng'] ?? 126.9780,
+      lat: (json['lat'] ?? 0.0).toDouble(),
+      lng: (json['lng'] ?? 0.0).toDouble(),
     );
   }
 }
