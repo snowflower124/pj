@@ -1,7 +1,18 @@
-import 'package:flutter/material.dart';
-import 'package:zari/screens/main_screen.dart'; // 수정된 경로
+// lib/main.dart
 
-void main() {
+import 'package:flutter/material.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:zari/screens/main_screen.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await NaverMapSdk.instance.initialize(
+      clientId: 'iul9uuelmf', // <-- 여기에 발급받은 Client ID를 입력하세요.
+      onAuthFailed: (ex) {
+        print("********* 네이버맵 인증 실패: $ex *********");
+      });
+
   runApp(const ZariApp());
 }
 

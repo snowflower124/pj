@@ -7,6 +7,8 @@ class HousingListing {
   final int deposit;
   final int rent;
   final String description;
+  final double lat; // 위도 추가
+  final double lng; // 경도 추가
 
   HousingListing({
     required this.id,
@@ -15,9 +17,10 @@ class HousingListing {
     required this.deposit,
     required this.rent,
     required this.description,
+    required this.lat,
+    required this.lng,
   });
 
-  // 서버에서 받은 JSON 데이터를 HousingListing 객체로 변환하는 로직
   factory HousingListing.fromJson(Map<String, dynamic> json) {
     return HousingListing(
       id: json['id'] ?? '',
@@ -26,6 +29,8 @@ class HousingListing {
       deposit: json['deposit'] ?? 0,
       rent: json['rent'] ?? 0,
       description: json['description'] ?? '설명 없음',
+      lat: json['lat'] ?? 37.5665, // 기본값: 서울 시청
+      lng: json['lng'] ?? 126.9780,
     );
   }
 }
