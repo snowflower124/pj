@@ -1,269 +1,279 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
-// 앱의 메인 컬러 및 텍스트 스타일 정의
-const Color primaryPurple = Color(0xFF6E42D0);
-const Color darkPurple = Color(0xFF2C1A52);
-const Color subtleTextColor = Color(0xFF555555);
-
-const TextStyle heroHeadline = TextStyle(
-  fontSize: 32,
-  fontWeight: FontWeight.bold,
-  color: darkPurple,
-  height: 1.3,
-);
-
-const TextStyle heroSubheadline = TextStyle(
-  fontSize: 18,
-  color: subtleTextColor,
-  height: 1.5,
-);
-
-// 앱 실행
+// 앱의 시작점
 void main() {
   runApp(const ZariApp());
 }
 
+// 앱의 루트 위젯 - '자리(ZARI)' 앱
 class ZariApp extends StatelessWidget {
   const ZariApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ZARI',
-      theme: ThemeData(
-        primarySwatch: Colors.purple,
-        fontFamily: 'Inter', // 폰트는 pubspec.yaml에 추가 필요
-      ),
+      title: '자리 (ZARI)',
       debugShowCheckedModeBanner: false,
-      home: const HomePage(),
+      // 앱의 전반적인 테마 설정
+      theme: ThemeData(
+        primarySwatch: Colors.deepPurple, // 앱의 기본 색상 견본
+        scaffoldBackgroundColor: const Color(0xFFF2F2F7), // iCloud 스타일의 배경색
+        fontFamily: 'Pretendard', // (선택) Pretendard와 같은 깔끔한 한글 폰트 추천
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFF2F2F7), // 배경과 동일한 AppBar 색상
+          foregroundColor: Colors.black, // AppBar 텍스트 및 아이콘 색상
+          elevation: 0, // 그림자 제거로 플랫한 디자인
+          titleTextStyle: TextStyle(
+            color: Colors.black,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        // 카드 테마 설정
+        cardTheme: CardThemeData( // CardThemeData로 타입 수정
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+        ),
+      ),
+      home: const MainScreen(),
     );
   }
 }
 
-// 메인 페이지 (StatefulWidget으로 애니메이션 관리)
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+// 하단 탭 네비게이션을 관리하는 메인 스크린
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<MainScreen> createState() => _MainScreenState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
+class _MainScreenState extends State<MainScreen> {
+  int _selectedIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
-    _controller.forward();
-  }
+  // 하단 탭에 연결될 페이지들
+  static const List<Widget> _widgetOptions = <Widget>[
+    HomePage(), // 홈 (핵심 기능 대시보드)
+    Center(child: Text('계약 안심 동행 페이지')),
+    Center(child: Text('유용한 정보 페이지')),
+    Center(child: Text('마이페이지')),
+  ];
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9FD),
-      body: Stack(
-        children: [
-          // 1. 배경 그라데이션
-          const BackgroundGradient(),
-
-          // 2. 메인 스크롤 컨텐츠
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                const SizedBox(height: 120), // 헤더 공간 확보
-                const HeroSection(),
-                const SizedBox(height: 80),
-                // 애니메이션과 함께 나타나는 기능 카드들
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: const FeaturesSection(),
-                  ),
-                ),
-                const SizedBox(height: 80),
-              ],
-            ),
+      body: _widgetOptions.elementAt(_selectedIndex),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_filled),
+            label: '홈',
           ),
-
-          // 3. 상단에 고정되는 헤더
-          const FrostedAppBar(),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shield_outlined),
+            label: '계약',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.lightbulb_outline),
+            label: '정보',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            label: '마이페이지',
+          ),
         ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.deepPurple, // 선택된 아이템 색상
+        unselectedItemColor: Colors.grey, // 선택되지 않은 아이템 색상
+        onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed, // 탭 고정
+        showUnselectedLabels: true, // 선택되지 않은 라벨도 표시
       ),
     );
   }
 }
 
-// 반투명 유리 효과가 적용된 앱 바 (헤더)
-class FrostedAppBar extends StatelessWidget {
-  const FrostedAppBar({super.key});
+// '자리(ZARI)'의 핵심 기능이 반영된 홈 페이지
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 10, 20, 10),
-          decoration: const BoxDecoration(
-              color: Color.fromRGBO(255, 255, 255, 0.5),
-              border: Border(bottom: BorderSide(color: Color.fromRGBO(0, 0, 0, 0.05)))
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('자리 (ZARI)'),
+      ),
+      body: ListView(
+        children: [
+          const SizedBox(height: 10),
+          _buildHeaderCard(),
+          const SizedBox(height: 20),
+
+          // --- 2.1. 나침반 AI 섹션 ---
+          _buildSectionHeader("나침반 AI: 내 상황 진단하기"),
+          _buildFeatureCard(
             children: [
-              const Text('ZARI', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: primaryPurple)),
-              Row(
-                children: [
-                  _navItem('AI 진단'),
-                  const SizedBox(width: 20),
-                  _navItem('계약 가이드'),
-                  // 화면이 작을 경우 나머지 메뉴는 생략하거나 다른 UI로 처리
-                ],
-              )
+              _buildListTile(
+                icon: Icons.compass_calibration_rounded,
+                color: Colors.purple,
+                title: 'AI 주거 상황 진단',
+                subtitle: '내 소득과 조건에 맞는 자리 찾기',
+                onTap: () {},
+              ),
+              _buildListTile(
+                icon: Icons.real_estate_agent_rounded,
+                color: Colors.blue,
+                title: '최적 주거 형태/지역 추천',
+                subtitle: '쉐어하우스, LH, 역세권 다세대주택 등',
+                onTap: () {},
+              ),
+              _buildListTile(
+                icon: Icons.savings_rounded,
+                color: Colors.green,
+                title: '맞춤형 금융 상품 매칭',
+                subtitle: '버팀목 전세자금대출 등 정부 지원 연결',
+                onTap: () {},
+              ),
             ],
           ),
-        ),
-      ),
-    );
-  }
 
-  Widget _navItem(String title) {
-    return Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: subtleTextColor));
-  }
-}
-
-// 배경 그라데이션 위젯
-class BackgroundGradient extends StatelessWidget {
-  const BackgroundGradient({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: RadialGradient(
-          center: Alignment(-0.8, -0.9),
-          radius: 0.8,
-          colors: [Color.fromRGBO(110, 66, 208, 0.1), Colors.transparent],
-        ),
-      ),
-    );
-  }
-}
-
-// 히어로 섹션 위젯
-class HeroSection extends StatelessWidget {
-  const HeroSection({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: Column(
-        children: [
-          const Text(
-            '지원 사각지대에서 막막했다면,\n이제 당신의 자리를 찾아보세요.',
-            textAlign: TextAlign.center,
-            style: heroHeadline,
+          // --- 2.2. 계약 안심 동행 섹션 ---
+          _buildSectionHeader("계약 안심 동행: 안전한 계약"),
+          _buildFeatureCard(
+            children: [
+              _buildListTile(
+                icon: Icons.checklist_rtl_rounded,
+                color: Colors.orange,
+                title: '단계별 계약 체크리스트',
+                subtitle: '집 알아보기부터 이사까지 전 과정 가이드',
+                onTap: () {},
+              ),
+              _buildListTile(
+                icon: Icons.document_scanner_rounded,
+                color: Colors.red,
+                title: 'AI 계약서 분석',
+                subtitle: '독소 조항, 위험 특약 자동 스캔 및 경고',
+                onTap: () {},
+              ),
+              _buildListTile(
+                icon: Icons.camera_alt_rounded,
+                color: Colors.teal,
+                title: '증거 보관함',
+                subtitle: '하자 발생 대비 집 내부 사진/상태 기록',
+                onTap: () {},
+              ),
+            ],
           ),
-          const SizedBox(height: 20),
-          const Text(
-            'ZARI는 정보가 부족한 대학생의 첫 주거 독립을 위한\n가장 똑똑하고 안전한 나침반입니다.',
-            textAlign: TextAlign.center,
-            style: heroSubheadline,
+
+          // --- 정보 탐색 섹션 ---
+          _buildSectionHeader("유용한 정보: 기회 잡기"),
+          _buildFeatureCard(
+            children: [
+              _buildListTile(
+                icon: Icons.notifications_active_rounded,
+                color: Colors.indigo,
+                title: '맞춤형 주거 공고 알림',
+                subtitle: 'LH/SH 청년 주택, 행복주택 등',
+                onTap: () {},
+              ),
+              _buildListTile(
+                icon: Icons.school_rounded,
+                color: Colors.brown,
+                title: '틈새 장학금 정보',
+                subtitle: '민간 재단, 기업, 동문회 장학금',
+                onTap: () {},
+              ),
+              _buildListTile(
+                icon: Icons.wallet_giftcard_rounded,
+                color: Colors.pink,
+                title: '생활비 절약 꿀팁',
+                subtitle: '알뜰교통카드, 청년 전용 금융 상품 등',
+                onTap: () {},
+              ),
+            ],
           ),
           const SizedBox(height: 40),
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: primaryPurple,
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-              elevation: 5,
-              shadowColor: primaryPurple.withOpacity(0.4),
-            ),
-            child: const Text(
-              '내 상황 진단하고 솔루션 받기 →',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-          )
         ],
       ),
     );
   }
-}
 
-// 기능 카드 섹션 위젯
-class FeaturesSection extends StatelessWidget {
-  const FeaturesSection({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    // Wrap 위젯은 화면 너비에 따라 자동으로 줄바꿈을 해줘 반응형 UI에 유용합니다.
-    return Wrap(
-      spacing: 20, // 가로 간격
-      runSpacing: 20, // 세로 간격
-      alignment: WrapAlignment.center,
-      children: const [
-        FeatureCard(icon: '🧭', title: '나침반 AI', description: '내 소득과 상황에 딱 맞는\n주거 형태, 대출, 지원금을\nAI가 찾아 추천해 줘요.'),
-        FeatureCard(icon: '📄', title: '계약 안심 동행', description: '어려운 부동산 계약 과정,\n체크리스트와 AI 분석으로\n사기 위험 없이 안전하게.'),
-        FeatureCard(icon: '💰', title: '숨은 지원금 찾기', description: '여기저기 흩어진 정부, 민간\n지원금과 틈새 장학금 정보를\n한곳에서 놓치지 마세요.'),
-      ],
-    );
-  }
-}
-
-// 개별 기능 카드 위젯
-class FeatureCard extends StatelessWidget {
-  final String icon;
-  final String title;
-  final String description;
-
-  const FeatureCard({
-    super.key,
-    required this.icon,
-    required this.title,
-    required this.description,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-        child: Container(
-          width: 300, // 카드의 기본 너비
-          padding: const EdgeInsets.all(30),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.6),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withOpacity(0.2)),
-          ),
-          child: Column(
-            children: [
-              Text(icon, style: const TextStyle(fontSize: 48)),
-              const SizedBox(height: 20),
-              Text(title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: darkPurple)),
-              const SizedBox(height: 10),
-              Text(description, textAlign: TextAlign.center, style: TextStyle(color: subtleTextColor, height: 1.5)),
-            ],
-          ),
+  // 상단 헤더 카드 위젯
+  Widget _buildHeaderCard() {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Text(
+              "'투명인간'이 된 청년들을 위한\n첫 자립의 동반자, 자리",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+            Text(
+              "흩어져 있는 정보를 모아\n안전하고 합리적인 '나의 자리'를 찾아보세요.",
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  // 기능 목록을 담는 카드 위젯
+  Widget _buildFeatureCard({required List<Widget> children}) {
+    return Card(
+      child: Column(children: children),
+    );
+  }
+
+  // 섹션 제목 위젯
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 24.0, right: 16.0, bottom: 8.0, top: 16.0),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  // 카드 내부에 들어갈 리스트 타일 위젯 (부제목 추가)
+  Widget _buildListTile({
+    required IconData icon,
+    required Color color,
+    required String title,
+    String? subtitle, // 부제목 추가
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, color: Colors.white, size: 24),
+      ),
+      title: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+      subtitle: subtitle != null ? Text(subtitle, style: const TextStyle(fontSize: 13)) : null,
+      trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+      onTap: onTap,
     );
   }
 }
