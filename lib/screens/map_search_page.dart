@@ -1,28 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:kakao_map_plugin/kakao_map_plugin.dart';
-import 'package:zari/data/mock_listings.dart';
+import 'package:zari/models/listing_model.dart';
 import 'package:zari/screens/filter_screen.dart';
+import 'package:zari/services/api_service.dart';
 
-class ListingsPage extends StatefulWidget {
-  const ListingsPage({super.key});
+class MapSearchPage extends StatefulWidget {
+  const MapSearchPage({super.key});
 
   @override
-  State<ListingsPage> createState() => _ListingsPageState();
+  State<MapSearchPage> createState() => _MapSearchPageState();
 }
 
-class _ListingsPageState extends State<ListingsPage> {
+class _MapSearchPageState extends State<MapSearchPage> {
   late KakaoMapController mapController;
   Set<Marker> markers = {};
+  final ApiService _apiService = ApiService();
 
   @override
   void initState() {
     super.initState();
-    markers = allListings
-        .map((listing) => Marker(
-      markerId: listing.id,
-      latLng: LatLng(listing.lat, listing.lng),
-    ))
-        .toSet();
+    _fetchListings(null); // 처음에는 필터 없이 전체 목록을 불러옵니다.
+  }
+
+  // 수동 필터 값으로 서버에서 매물 목록을 가져오는 함수
+  Future<void> _fetchListings(Map<String, Set<String>>? filters) async {
+    try {
+      final listings = await _apiService.getFilteredListings(filters);
+      final newMarkers = listings.map((listing) => Marker(
+        markerId: listing.id,
+        latLng: LatLng(listing.lat, listing.lng),
+        infoWindowContent: '<div style="padding:10px;">${listing.housingType}<br>${listing.transactionType}</div>',
+      )).toSet();
+
+      setState(() {
+        markers = newMarkers;
+      });
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('매물 정보를 불러오는데 실패했습니다: ${e.toString()}'))
+      );
+    }
   }
 
   @override
@@ -37,7 +55,6 @@ class _ListingsPageState extends State<ListingsPage> {
           KakaoMap(
             onMapCreated: (controller) {
               mapController = controller;
-              setState(() {});
             },
             markers: markers.toList(),
             center: LatLng(37.4980, 126.9295),
@@ -54,8 +71,9 @@ class _ListingsPageState extends State<ListingsPage> {
       left: 16,
       right: 16,
       child: GestureDetector(
-        onTap: () {
-          showModalBottomSheet(
+        onTap: () async {
+          // 필터 화면을 띄우고, 결과(filterData)를 기다립니다.
+          final filterData = await showModalBottomSheet<Map<String, Set<String>>>(
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.white,
@@ -64,6 +82,11 @@ class _ListingsPageState extends State<ListingsPage> {
             ),
             builder: (context) => const FilterScreen(),
           );
+
+          // 필터 데이터가 반환되었으면 (null이 아니면) API를 다시 호출합니다.
+          if (filterData != null) {
+            _fetchListings(filterData);
+          }
         },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -78,9 +101,8 @@ class _ListingsPageState extends State<ListingsPage> {
               ),
             ],
           ),
-          // --- 👇 누락되었던 child와 그 내용(Row)을 추가했습니다 ---
-          child: Row(
-            children: const [
+          child: const Row(
+            children: [
               Icon(Icons.search, color: Colors.grey),
               SizedBox(width: 8),
               Text("위치, 거래 유형, 매물 종류 등 필터", style: TextStyle(color: Colors.grey)),

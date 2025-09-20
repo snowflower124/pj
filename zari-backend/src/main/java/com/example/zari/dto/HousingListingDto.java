@@ -8,6 +8,7 @@ import lombok.Getter;
 public class HousingListingDto {
     private String id;
     private String housingType;
+    private String transactionType; // 필터링을 위해 추가
     private String location;
     private int deposit;
     private int rent;

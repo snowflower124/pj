@@ -5,7 +5,6 @@ import 'package:zari/services/api_service.dart';
 
 class FilteredResultsPage extends StatefulWidget {
   final AiDiagnosisResponse criteria;
-
   const FilteredResultsPage({super.key, required this.criteria});
 
   @override
@@ -13,38 +12,31 @@ class FilteredResultsPage extends StatefulWidget {
 }
 
 class _FilteredResultsPageState extends State<FilteredResultsPage> {
-  // ApiService 객체를 생성하고 getFilteredListings 함수를 호출하는 Future
   late Future<List<HousingListing>> _listingsFuture;
 
   @override
   void initState() {
     super.initState();
-    // initState에서 API 호출을 시작
-    _listingsFuture = ApiService().getFilteredListings(widget.criteria);
+    // ApiService의 getRecommendedListings 함수를 호출
+    _listingsFuture = ApiService().getRecommendedListings(widget.criteria);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("AI 추천 매물"),
-      ),
+      appBar: AppBar(title: const Text("AI 추천 매물")),
       body: FutureBuilder<List<HousingListing>>(
         future: _listingsFuture,
         builder: (context, snapshot) {
-          // 로딩 중일 때
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          // 에러가 발생했을 때
           if (snapshot.hasError) {
             return Center(child: Text('오류: ${snapshot.error}'));
           }
-          // 데이터가 없을 때
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text('추천 매물이 없습니다.'));
           }
-          // 성공적으로 데이터를 받아왔을 때
           final listings = snapshot.data!;
           return ListView.builder(
             itemCount: listings.length,
@@ -53,9 +45,14 @@ class _FilteredResultsPageState extends State<FilteredResultsPage> {
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: ListTile(
-                  title: Text(listing.housingType),
+                  title: Text("${listing.housingType} (${listing.transactionType})"),
                   subtitle: Text(listing.location),
-                  trailing: Text('월 ${listing.rent}만원'),
+                  trailing: Text(
+                      listing.transactionType == '월세'
+                          ? '${listing.deposit}/${listing.rent}'
+                          : '${listing.deposit}',
+                      style: const TextStyle(fontWeight: FontWeight.bold)
+                  ),
                 ),
               );
             },

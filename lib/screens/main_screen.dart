@@ -1,10 +1,8 @@
-// lib/screens/main_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:zari/screens/compass_ai_page.dart';
 import 'package:zari/screens/contract_page.dart';
 import 'package:zari/screens/info_page.dart';
-import 'package:zari/screens/listings_page.dart';
+import 'package:zari/screens/map_search_page.dart'; // 수정된 부분
 import 'package:zari/screens/my_page.dart';
 
 class MainScreen extends StatefulWidget {
@@ -15,11 +13,12 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 2;
+  int _selectedIndex = 2; // 기본 탭을 '나침반'으로 설정
 
+  // '매물' 탭에 MapSearchPage를 연결
   final List<Widget> _widgetOptions = [
     const ContractPage(),
-    const ListingsPage(),
+    const MapSearchPage(), // 수정된 부분
     const CompassAiPage(),
     const InfoPage(),
     const MyPage(),
