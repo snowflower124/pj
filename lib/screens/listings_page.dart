@@ -1,10 +1,8 @@
-// lib/screens/listings_page.dart
-
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:kakao_map_plugin/kakao_map_plugin.dart';
 import 'package:zari/data/mock_listings.dart';
 import 'package:zari/screens/filter_screen.dart';
+import 'package:zari/models/listing_model.dart';
 
 class ListingsPage extends StatefulWidget {
   const ListingsPage({super.key});
@@ -14,7 +12,19 @@ class ListingsPage extends StatefulWidget {
 }
 
 class _ListingsPageState extends State<ListingsPage> {
-  final Completer<NaverMapController> _mapController = Completer();
+  late KakaoMapController mapController;
+  Set<Marker> markers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    markers = allListings
+        .map((listing) => Marker(
+      markerId: listing.id,
+      latLng: LatLng(listing.lat, listing.lng),
+    ))
+        .toSet();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,39 +35,13 @@ class _ListingsPageState extends State<ListingsPage> {
       ),
       body: Stack(
         children: [
-          NaverMap(
-            options: const NaverMapViewOptions(
-              initialCameraPosition: NCameraPosition(
-                target: NLatLng(37.4980, 126.9295),
-                zoom: 14,
-              ),
-            ),
-            onMapReady: (controller) async {
-              _mapController.complete(controller);
-
-              final markers = allListings.map((listing) {
-                final marker = NMarker(
-                  id: listing.id,
-                  position: NLatLng(listing.lat, listing.lng),
-                );
-
-                marker.setOnTapListener((_) async {
-                  final mapController = await _mapController.future;
-                  final currentZoom = (await mapController.getCameraPosition()).zoom;
-
-                  final cameraUpdate = NCameraUpdate.scrollAndZoomTo(
-                    target: marker.position,
-                    zoom: currentZoom < 15 ? 15 : currentZoom + 1,
-                  );
-
-                  // --- 💡 최종 수정: v1.4.1에서는 animateCamera 대신 updateCamera를 사용합니다. (애니메이션 없음) ---
-                  mapController.updateCamera(cameraUpdate);
-                });
-                return marker;
-              }).toList();
-
-              controller.addOverlayAll(Set.from(markers));
+          KakaoMap(
+            onMapCreated: (controller) {
+              mapController = controller;
+              setState(() {});
             },
+            markers: markers.toList(),
+            center: LatLng(37.4980, 126.9295),
           ),
           _buildBottomSearchBar(),
         ],
@@ -66,7 +50,6 @@ class _ListingsPageState extends State<ListingsPage> {
   }
 
   Widget _buildBottomSearchBar() {
-    // 이 부분은 수정할 필요 없습니다.
     return Positioned(
       bottom: 20,
       left: 16,
@@ -96,6 +79,7 @@ class _ListingsPageState extends State<ListingsPage> {
               ),
             ],
           ),
+          // --- 👇 누락되었던 child와 그 내용(Row)을 추가했습니다 ---
           child: Row(
             children: const [
               Icon(Icons.search, color: Colors.grey),

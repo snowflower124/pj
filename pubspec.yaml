@@ -40,7 +40,8 @@ dependencies:
   # 갤러리에서 사진/동영상을 가져오기 위한 패키지입니다.
   image_picker: ^1.0.7
   http: ^1.2.1
-  flutter_naver_map: ^1.4.1
+  kakao_map_plugin: ^0.3.7
+
 
 dev_dependencies:
   flutter_test:

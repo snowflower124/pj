@@ -1,5 +1,3 @@
-// lib/models/listing_model.dart
-
 class HousingListing {
   final String id;
   final String housingType;
@@ -7,8 +5,8 @@ class HousingListing {
   final int deposit;
   final int rent;
   final String description;
-  final double lat; // 위도 추가
-  final double lng; // 경도 추가
+  final double lat;
+  final double lng;
 
   HousingListing({
     required this.id,
@@ -29,7 +27,7 @@ class HousingListing {
       deposit: json['deposit'] ?? 0,
       rent: json['rent'] ?? 0,
       description: json['description'] ?? '설명 없음',
-      lat: json['lat'] ?? 37.5665, // 기본값: 서울 시청
+      lat: json['lat'] ?? 37.5665,
       lng: json['lng'] ?? 126.9780,
     );
   }
