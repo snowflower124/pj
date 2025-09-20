@@ -1,5 +1,6 @@
 // lib/models/ai_diagnosis_model.dart
 
+// AI 진단 요청 시 보내는 데이터 모델 (확장됨)
 class AiDiagnosisRequest {
   final int incomeQuintile;
   final int currentIncome;
@@ -20,22 +21,9 @@ class AiDiagnosisRequest {
     required this.availableBudget,
     required this.location,
   });
-
-  // 👇 오류 해결을 위해 이 함수를 추가하세요.
-  Map<String, dynamic> toMap() {
-    return {
-      'incomeQuintile': incomeQuintile,
-      'currentIncome': currentIncome,
-      'familyMembers': familyMembers,
-      'childrenCount': childrenCount,
-      'isMarried': isMarried,
-      'age': age,
-      'availableBudget': availableBudget,
-      'location': location,
-    };
-  }
 }
 
+// AI 진단 후 받는 데이터 모델 (기존과 동일)
 class AiDiagnosisResponse {
   final int recommendedRent;
   final int recommendedJeonse;

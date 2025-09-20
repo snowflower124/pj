@@ -1,3 +1,5 @@
+// lib/screens/ai_diagnosis_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:zari/models/ai_diagnosis_model.dart';
 import 'package:zari/services/api_service.dart';
@@ -42,12 +44,12 @@ class _AiDiagnosisPageState extends State<AiDiagnosisPage> {
 
     final requestData = AiDiagnosisRequest(
       incomeQuintile: _incomeQuintile!,
-      currentIncome: int.tryParse(_incomeController.text) ?? 0,
-      familyMembers: int.tryParse(_familyMembersController.text) ?? 1,
-      childrenCount: int.tryParse(_childrenController.text) ?? 0,
+      currentIncome: int.parse(_incomeController.text),
+      familyMembers: int.parse(_familyMembersController.text),
+      childrenCount: int.parse(_childrenController.text),
       isMarried: _isMarried!,
-      age: int.tryParse(_ageController.text) ?? 25,
-      availableBudget: int.tryParse(_budgetController.text) ?? 0,
+      age: int.parse(_ageController.text),
+      availableBudget: int.parse(_budgetController.text),
       location: _locationController.text,
     );
 
@@ -55,6 +57,7 @@ class _AiDiagnosisPageState extends State<AiDiagnosisPage> {
       final apiService = ApiService();
       final result = await apiService.getAiDiagnosis(requestData);
 
+      // 이전 화면으로 진단 결과를 반환하며 돌아갑니다.
       if (mounted) {
         Navigator.pop(context, result);
       }
@@ -91,14 +94,14 @@ class _AiDiagnosisPageState extends State<AiDiagnosisPage> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _incomeController,
-              decoration: const InputDecoration(labelText: '월 소득 (단위: 만원)', border: OutlineInputBorder()),
+              decoration: const InputDecoration(labelText: '현재 소득 (단위: 만원)', border: OutlineInputBorder()),
               keyboardType: TextInputType.number,
               validator: (value) => value!.isEmpty ? '필수 항목입니다.' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _familyMembersController,
-              decoration: const InputDecoration(labelText: '가족 인원 수 (본인 포함)', border: OutlineInputBorder()),
+              decoration: const InputDecoration(labelText: '가족 인원 수', border: OutlineInputBorder()),
               keyboardType: TextInputType.number,
               validator: (value) => value!.isEmpty ? '필수 항목입니다.' : null,
             ),
@@ -125,24 +128,20 @@ class _AiDiagnosisPageState extends State<AiDiagnosisPage> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _budgetController,
-              decoration: const InputDecoration(labelText: '사용가능한 총 예산 (단위: 만원)', border: OutlineInputBorder()),
+              decoration: const InputDecoration(labelText: '사용가능한 예산 (단위: 만원)', border: OutlineInputBorder()),
               keyboardType: TextInputType.number,
               validator: (value) => value!.isEmpty ? '필수 항목입니다.' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _locationController,
-              decoration: const InputDecoration(labelText: '주요 활동 지역 (예: 강남역)', border: OutlineInputBorder()),
+              decoration: const InputDecoration(labelText: '학교/직장 위치', border: OutlineInputBorder()),
               validator: (value) => value!.isEmpty ? '필수 항목입니다.' : null,
             ),
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: _isLoading ? null : _submitForm,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Colors.white,
-              ),
+              style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
               child: _isLoading ? const CircularProgressIndicator(color: Colors.white) : const Text('진단 결과 보기', style: TextStyle(fontSize: 16)),
             ),
           ],
