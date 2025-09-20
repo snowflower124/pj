@@ -78,7 +78,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-// --- 1. 매물 탭 페이지 ---
+// --- 1. 매물 탭 페이지 (안정성 수정) ---
 class ListingsPage extends StatelessWidget {
   const ListingsPage({super.key});
 
@@ -86,8 +86,8 @@ class ListingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(centerTitle: false, title: const Text('내 주변 매물')),
+      // 불필요한 height 속성 제거
       body: Container(
-        height: double.infinity,
         margin: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.grey[300],
@@ -149,7 +149,7 @@ class ContractPage extends StatelessWidget {
   }
 }
 
-// --- 3. 나침반 AI 탭 페이지 (ExpansionTile 적용) ---
+// --- 3. 나침반 AI 탭 페이지 ---
 class CompassAiPage extends StatefulWidget {
   const CompassAiPage({super.key});
 
@@ -158,7 +158,7 @@ class CompassAiPage extends StatefulWidget {
 }
 
 class _CompassAiPageState extends State<CompassAiPage> {
-  bool _isDiagnosed = false; // AI 진단 여부 상태
+  bool _isDiagnosed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -169,35 +169,19 @@ class _CompassAiPageState extends State<CompassAiPage> {
         children: [
           const DDayCard(),
           const SizedBox(height: 20),
-          // AI 진단 기능을 ExpansionTile을 사용하여 재구성
-          Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-            child: ExpansionTile(
-              onExpansionChanged: (isExpanding) {
-                // Tile이 열릴 때 진단된 것으로 상태 변경 (시뮬레이션)
-                if (isExpanding && !_isDiagnosed) {
-                  setState(() {
-                    _isDiagnosed = true;
-                  });
-                }
-              },
-              leading: Container(
-                width: 32, height: 32,
-                decoration: BoxDecoration(color: Colors.purple, borderRadius: BorderRadius.circular(8)),
-                child: const Icon(Icons.compass_calibration_rounded, color: Colors.white, size: 20),
-              ),
-              title: const Text('AI 주거 상황 진단', style: TextStyle(fontSize: 16)),
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  child: _isDiagnosed ? _buildDiagnosisResult() : _buildDiagnosisPrompt(),
-                ),
-              ],
-            ),
-          ),
+          _buildAiResultsCard(),
           const SizedBox(height: 8),
           _buildFeatureCard(children: [
+            _buildListTile(
+              icon: Icons.compass_calibration_rounded,
+              color: Colors.purple,
+              title: 'AI 주거 상황 진단',
+              onTap: () {
+                setState(() {
+                  _isDiagnosed = true;
+                });
+              },
+            ),
             _buildListTile(icon: Icons.real_estate_agent_rounded, color: Colors.blue, title: '최적 주거 형태/지역 추천', onTap: () {}),
             _buildListTile(icon: Icons.savings_rounded, color: Colors.green, title: '맞춤형 금융 상품 매칭', onTap: () {}),
           ]),
@@ -206,8 +190,31 @@ class _CompassAiPageState extends State<CompassAiPage> {
     );
   }
 
+  Widget _buildAiResultsCard() {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text("AI 상황 판단 결과", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: _isDiagnosed ? _buildDiagnosisResult() : _buildDiagnosisPrompt(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildDiagnosisResult() {
     return Column(
+      key: const ValueKey('result'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: const [
         Text("• 추천 보증금: 1000만원 ~ 3000만원"),
@@ -221,9 +228,10 @@ class _CompassAiPageState extends State<CompassAiPage> {
 
   Widget _buildDiagnosisPrompt() {
     return const Text(
+      key: ValueKey('prompt'),
       "AI를 통해 여러분들의 상황을 진단 받고\n최적의 월세/전세 비용을 추천 받으세요!",
       textAlign: TextAlign.center,
-      style: TextStyle(color: Colors.grey),
+      style: TextStyle(color: Colors.grey, height: 1.5),
     );
   }
 }
@@ -265,9 +273,9 @@ class MyPage extends StatelessWidget {
                 child: Icon(Icons.person, size: 50, color: Colors.white),
               ),
               SizedBox(height: 12),
-              Text("User_Name", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              Text("한덕윤님", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               SizedBox(height: 4),
-              Text("User@email.com", style: TextStyle(fontSize: 14, color: Colors.grey)),
+              Text("hdyoon@email.com", style: TextStyle(fontSize: 14, color: Colors.grey)),
             ],
           ),
           const SizedBox(height: 30),
@@ -387,7 +395,7 @@ class _DDayCardState extends State<DDayCard> {
   }
 }
 
-// --- 계약 체크리스트 페이지 (오류 수정) ---
+// --- 계약 체크리스트 페이지 (안정성 및 UI 수정) ---
 class ChecklistPage extends StatefulWidget {
   const ChecklistPage({super.key});
   @override
@@ -396,7 +404,6 @@ class ChecklistPage extends StatefulWidget {
 
 class _ChecklistPageState extends State<ChecklistPage> {
   String? _contractType;
-  // late 키워드 대신 빈 리스트로 초기화하여 안정성 확보
   List<bool> _checkedItems = [];
 
   final Map<String, List<String>> _checklistData = {
@@ -411,6 +418,12 @@ class _ChecklistPageState extends State<ChecklistPage> {
     });
   }
 
+  double get _progressValue {
+    if (_checkedItems.isEmpty) return 0.0;
+    final checkedCount = _checkedItems.where((item) => item).length;
+    return checkedCount / _checkedItems.length;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -420,39 +433,103 @@ class _ChecklistPageState extends State<ChecklistPage> {
   }
 
   Widget _buildTypeSelection() {
-    return Center(
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("계약 유형을 선택해주세요", style: TextStyle(fontSize: 18)),
+          const Text("계약 유형을 선택해주세요.", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(onPressed: () => _selectContractType('월세'), child: const Text("월세")),
-              const SizedBox(width: 20),
-              ElevatedButton(onPressed: () => _selectContractType('전세'), child: const Text("전세")),
-            ],
-          )
+          _buildTypeSelectionCard(
+            icon: Icons.home_work_outlined,
+            title: '월세 계약',
+            subtitle: '매월 정해진 금액을 지불하는 방식입니다.',
+            onTap: () => _selectContractType('월세'),
+          ),
+          const SizedBox(height: 12),
+          _buildTypeSelectionCard(
+            icon: Icons.real_estate_agent_outlined,
+            title: '전세 계약',
+            subtitle: '목돈을 맡기고 계약 종료 후 돌려받는 방식입니다.',
+            onTap: () => _selectContractType('전세'),
+          ),
         ],
       ),
     );
   }
 
+  Widget _buildTypeSelectionCard({required IconData icon, required String title, required String subtitle, required VoidCallback onTap}) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Row(
+            children: [
+              Icon(icon, size: 40, color: Colors.deepPurple),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    Text(subtitle, style: const TextStyle(color: Colors.grey)),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Column과 Expanded를 사용하여 헤더와 리스트를 분리하고 레이아웃 오류를 방지
   Widget _buildChecklist() {
-    return ListView.builder(
-      itemCount: _checklistData[_contractType!]!.length,
-      itemBuilder: (context, index) {
-        return CheckboxListTile(
-          title: Text(_checklistData[_contractType!]![index]),
-          value: _checkedItems[index],
-          onChanged: (bool? value) {
-            setState(() {
-              _checkedItems[index] = value!;
-            });
-          },
-        );
-      },
+    return Column(
+      children: [
+        // 1. 고정된 헤더 영역
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Text("'$_contractType' 계약 체크리스트", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const Spacer(),
+                  Text("${(_progressValue * 100).toStringAsFixed(0)}%", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              const SizedBox(height: 8),
+              LinearProgressIndicator(
+                value: _progressValue,
+                minHeight: 8,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ],
+          ),
+        ),
+        // 2. 남은 공간을 모두 차지하는 스크롤 가능한 리스트 영역
+        Expanded(
+          child: ListView.builder(
+            itemCount: _checklistData[_contractType!]!.length,
+            itemBuilder: (context, index) {
+              return CheckboxListTile(
+                title: Text(_checklistData[_contractType!]![index]),
+                value: _checkedItems[index],
+                onChanged: (bool? value) {
+                  setState(() {
+                    _checkedItems[index] = value!;
+                  });
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
