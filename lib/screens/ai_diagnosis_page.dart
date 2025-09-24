@@ -83,7 +83,7 @@ class _AiDiagnosisPageState extends State<AiDiagnosisPage> {
           children: [
             DropdownButtonFormField<int>(
               decoration: const InputDecoration(labelText: "소득 분위", border: OutlineInputBorder()),
-              value: _incomeQuintile,
+              initialValue: _incomeQuintile,
               hint: const Text("소득 분위 선택"),
               items: List.generate(10, (index) => index + 1)
                   .map((e) => DropdownMenuItem(value: e, child: Text("$e분위")))

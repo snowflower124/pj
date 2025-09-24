@@ -9,8 +9,8 @@ class FilterScreen extends StatefulWidget {
 
 class _FilterScreenState extends State<FilterScreen> {
   // 필터 선택 값을 저장하는 변수
-  Set<String> _transactionTypes = {'월세'};
-  Set<String> _housingTypes = {'아파트'};
+  final Set<String> _transactionTypes = {'월세'};
+  final Set<String> _housingTypes = {'아파트'};
 
   @override
   Widget build(BuildContext context) {
